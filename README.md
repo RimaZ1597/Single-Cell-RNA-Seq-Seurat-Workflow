@@ -1,138 +1,69 @@
-# scRNA-Seq-Analysis
+# Single-Cell RNA-Seq Analysis of Alveolar Rhabdomyosarcoma (GSE113660) Using Seurat
 
-## Introduction to RNA seq
-Used to measure gene expression.
+This repository contains a full single-cell RNA-seq (scRNA-seq) analysis pipeline for the **Rh41 alveolar rhabdomyosarcoma cell line** from the GEO dataset **GSE113660**. The workflow uses **Seurat** in R to perform gene annotation, quality control, normalization, dimensionality reduction, clustering, UMAP visualization, and marker gene identification.
 
-### Three main steps for RNA seq
-1. Prepare a sequence library
-   - Isolate the RNA
-     
-   - Break RNA into small fragments
-     
-   - Convert RNA into dsDNA
-     
-   - Add adapters
-     
-   - PCR amplification
-2. Sequence
-   - Sequencer/sequencing machine
-     
-   - Quality control
-     
-3. Data analysis
+---
 
-<img width="700" alt="scrnaseq2" src="https://github.com/user-attachments/assets/690089f1-c845-4fd5-8c22-df585aadf375">
+## Dataset Information
+- **Cancer Type:** Alveolar Rhabdomyosarcoma  
+- **Accession:** GSE113660  
+- **Cell Count:** 6875  
+- **Cell Line:** Rh41  
+- **Gene Types:** Protein-Coding Genes (PCG) and lncRNAs  
 
-### BULK
-- Extract RNA
-  
-- Average gene expression across all the cells
-  
-- Impossible to compare differences in gene expression between individual cells
-  
+---
 
-### SINGLE
-- Extract RNA from all the cells
-  
-- Sequence RNA from each cell and quantify the expression
+## Pipeline Steps
 
-## Bulk v/s single-cell RNA sequencing
+### **1. Data Loading & Gene Annotation**
+- Read raw expression matrix  
+- Convert ENSEMBL IDs → Gene Symbols using **org.Hs.eg.db**  
+- Remove duplicates and missing genes  
 
-SINGLE-CELL RNA SEQ ADVANTAGES
+### **2. Create Seurat Object & Quality Control**
+- Compute mitochondrial gene percentage  
+- Violin plots for:
+  - nFeature_RNA  
+  - nCount_RNA  
+  - percent.mt  
 
-- Allows you to compare the expression between cells
-  
-- Identify rare cell population
-  
-- Understand spatial transcriptomics
-  
-- Track cell lineage
+### **3. Normalization & Feature Selection**
+- NormalizeData  
+- FindVariableFeatures (2000 genes)  
+- Identify top 10 HVGs  
+- Plot variable features  
 
-# Basic Workflow
+### **4. Dimensionality Reduction**
+- ScaleData  
+- PCA  
+- PCA loadings, heatmaps  
+- JackStraw significance test  
+- ElbowPlot to choose PCs  
 
-<img width="700" alt="scRNA4" src="https://github.com/user-attachments/assets/cc679f81-4da5-491d-9f5c-ee3ad05b3640">
+### **5. Clustering & Visualization**
+- FindNeighbors  
+- FindClusters (resolution = 0.5)  
+- UMAP visualization  
+- Save plots to PDF  
 
-### Single-cell Isolation
+### **6. Marker Gene Discovery**
+- Run FindAllMarkers  
+- Export markers (`Markers_info.csv`)  
+- Visualize with VlnPlot & FeaturePlot  
 
-- Limiting Dilution - Use pipettes to isolate cells by dilution
-  
-- Micromanipulation - Classic approach used to retrieve cells from samples with a small number of cells such as early embryos
-  
-- Flow-activated cell sorting - widely used for isolating single cells in suspension
-  
-- Fraser capture microdissection - An advanced technique used for isolating single cells from solid tissue by using a laser system
+---
 
-### Technologies available
+## Output Files
+- **Plots.pdf** — QC, PCA, UMAP, marker plots  
+- **Markers_info.csv** — cluster-specific marker genes  
 
-| Method                  | Transcript Coverage | UMI Possibility | Strand Specific |
-|-------------------------|---------------------|-----------------|-----------------|
-| **Tang method**         | Nearly full-length  | No              | No              |
-| **Quartz-Seq**          | Full-length         | No              | No              |
-| **SUPeR-seq**           | Full-length         | No              | No              |
-| **Smart-seq**           | Full-length         | No              | No              |
-| **Smart-seq2**          | Full-length         | No              | No              |
-| **MATQ-seq**            | Full-length         | Yes             | Yes             |
-| **STRT-seq and STRT/C1**| 5′-only             | Yes             | Yes             |
-| **CEL-seq**             | 3′-only             | Yes             | Yes             |
-| **CEL-seq2**            | 3′-only             | Yes             | Yes             |
-| **MARS-seq**            | 3′-only             | Yes             | Yes             |
-| **CytoSeq**             | 3′-only             | Yes             | Yes             |
-| **Drop-seq**            | 3′-only             | Yes             | Yes             |
-| **InDrop**              | 3′-only             | Yes             | Yes             |
-| **Chromium**            | 3′-only             | Yes             | Yes             |
-| **SPLiT-seq**           | 3′-only             | Yes             | Yes             |
-| **sci-RNA-seq**         | 3′-only             | Yes             | Yes             |
-| **Seq-Well**            | 3′-only             | Yes             | Yes             |
-| **DroNC-seq**           | 3′-only             | Yes             | Yes             |
-| **Quartz-Seq2**         | 3′-only             | Yes             | Yes             |
+---
 
-**Reference:** Chen, G., Ning, B., & Shi, T. (2019). Single-cell RNA-seq technologies and related computational data analysis. Frontiers in Genetics, 10(317). (https://doi.org/10.3389/fgene.2019.00317)
+## Dependencies
+- Seurat  
+- dplyr, tidyr, data.table  
+- org.Hs.eg.db, AnnotationDbi  
+- R ≥ 4.0  
 
-### Read Mapping Tools
-#### Tools for Read Mapping and Expression Quantification of scRNA-seq Data
 
-| Tool         | Function                   | Link                                                            |
-|--------------|----------------------------|-----------------------------------------------------------------|
-| **TopHat2**  | Read mapping               | [TopHat2](https://ccb.jhu.edu/software/tophat/index.shtml)      |
-| **STAR**     | Read mapping               | [STAR](https://github.com/alexdobin/STAR)                       |
-| **HISAT2**   | Read mapping               | [HISAT2](https://github.com/DaehwanKimLab/hisat2)               |
-| **Cufflinks**| Expression quantification  | [Cufflinks](https://github.com/cole-trapnell-lab/cufflinks)     |
-| **RSEM**     | Expression quantification  | [RSEM](https://github.com/deweylab/RSEM)                        |
-| **StringTie**| Expression quantification  | [StringTie](https://github.com/gpertea/stringtie)               |
 
-**Reference:** Chen, G., Ning, B., & Shi, T. (2019). Single-cell RNA-seq technologies and related computational data analysis. Frontiers in Genetics, 10(317). (https://doi.org/10.3389/fgene.2019.00317)
-
-### scRNA seq Databases
-1. scRNASeqDB - (https://bioinfo.uth.edu/scrnaseqdb/)
-
-2. PanglaoDB - (https://panglaodb.se/)
- 
-3. CancerSea - (http://biocc.hrbmu.edu.cn/CancerSEA/home.jsp)
-   
-### Packages to analyze scRNA-seq data
-1. SingleCellExperiment
-  
-2. Seurat
-   
-3. Scater
-   
-4. Monocle3
-   
-5. Scanpy
-
-### Seurat Workflow
-
-<img width="800" alt="scRNA8" src="https://github.com/user-attachments/assets/5997b6b8-68c1-4bb2-be71-5f6cfd9169d0">
-
-### Required R Packages
-
-- library("AnnotationDbi")
-  
-- library("org.Hs.eg.db")
-  
-- library(tidyr)
-  
-- library(dplyr)
-  
-- library(Seurat)
-  
